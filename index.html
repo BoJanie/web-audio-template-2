@@ -21,6 +21,11 @@
     <label id="pitchShiftLabel" for="pitchShiftSlider">0</label>
     <input type="range" id="pitchShiftSlider" name="pitchShiftSlider" min="-12" max="12" step="0.5" />
   </fieldset>
+  <fieldset>
+    <legend>Use slider to control reverb</legend>
+    <label id="reverbLabel" for="reverbSlider">0</label>
+    <input type="range" id="reverbSlider" name="reverbSlider" min="0" max="5" step="0.1" />
+  </fieldset>
 </main>
 
 <script src="js/Tone.js"></script>
@@ -29,9 +34,10 @@
 
 // Create a pitch shifter and connect its output to the master out
 var pitchShift = new Tone.PitchShift().toMaster();
+var reverb = new Tone.Reverb().toMaster();
 
 // Create a synth and connect it to the pitch shifter
-var synth = new Tone.Synth({
+/*var synth = new Tone.Synth({
   oscillator: {
     type: 'sawtooth'
   },
@@ -42,10 +48,12 @@ var synth = new Tone.Synth({
     release: 1
   }
 }).connect(pitchShift);
+*/
 
 // Sample code to load a sound file
 // NOTE: This sound file is not played in this script
 var clave = new Tone.Player('audio/clave.mp3').toMaster();
+var musicSample = new Tone.Player('audio/Composition_2_Nilesh_Linds_Josh_Jane.wav').connect(pitchShift).connect(reverb);
 
 // Bind slider value to pitch shift amount
 // Every change in slider value triggers change in pitch shift
@@ -53,6 +61,8 @@ var clave = new Tone.Player('audio/clave.mp3').toMaster();
 // But what else could we pitch shift?
 var pitchShiftLabel = document.querySelector('#pitchShiftLabel');
 var pitchShiftSlider = document.querySelector('#pitchShiftSlider');
+var reverbLabel = document.querySelector('#reverbLabel')
+
 pitchShiftSlider.addEventListener('input', function() {
   // assign slider value to pitch shift amount (in semitones)
   pitchShift.pitch = pitchShiftSlider.value;
@@ -60,12 +70,18 @@ pitchShiftSlider.addEventListener('input', function() {
   pitchShiftLabel.innerHTML = pitchShiftSlider.value;
 });
 
+reverbSlider.addEventListener('input', function() {
+  reverb.decay = reverbSlider.value;
+  reverbLabel.innerHTML = reverbSlider.value;
+});
+
 // The following block of code will run when the play button is clicked
 document.querySelector('#playButton').onclick = function() {
   console.log('The play button has been heckin\' clicked.');
 
   // Play a middle C, which will sound until the stop button is clicked
-  synth.triggerAttack('C4');
+  //synth.triggerAttack('C4');
+  musicSample.start();
 };
 
 // The following block of code will run when the stop button is clicked
@@ -73,7 +89,8 @@ document.querySelector('#stopButton').onclick = function() {
   console.log('The stop button has been clicked.');
 
   // Stop the note from sounding
-  synth.triggerRelease();
+  //synth.triggerRelease();
+  musicSample.stop();
 };
 
 </script>
