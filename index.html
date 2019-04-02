@@ -16,6 +16,7 @@
   <h2>Click the buttons to make (or stop) some sound:</h2>
   <button id="playButton" class="btn-transport" type="button">play</button>
   <button id="stopButton" class="btn-transport" type="button">stop</button>
+  <button id="transportButton" class="btn-transport" type="button">start or stop transport</button>
   <fieldset>
     <legend>Use slider to control pitch shift</legend>
     <label id="pitchShiftLabel" for="pitchShiftSlider">0</label>
@@ -37,7 +38,7 @@ var pitchShift = new Tone.PitchShift().toMaster();
 var reverb = new Tone.Reverb().toMaster();
 
 // Create a synth and connect it to the pitch shifter
-/*var synth = new Tone.Synth({
+var synth = new Tone.Synth({
   oscillator: {
     type: 'sawtooth'
   },
@@ -48,13 +49,13 @@ var reverb = new Tone.Reverb().toMaster();
     release: 1
   }
 }).connect(pitchShift);
-*/
+
 
 // Sample code to load a sound file
 // NOTE: This sound file is not played in this script
 var clave = new Tone.Player('audio/clave.mp3').toMaster();
 var musicSample = new Tone.Player('audio/Composition_2_Nilesh_Linds_Josh_Jane.wav').connect(pitchShift).connect(reverb);
-
+reverb.generate();
 // Bind slider value to pitch shift amount
 // Every change in slider value triggers change in pitch shift
 // It's silly to pitch shift a synthesizer, right?
@@ -75,13 +76,21 @@ reverbSlider.addEventListener('input', function() {
   reverbLabel.innerHTML = reverbSlider.value;
 });
 
+//create a loop
+var loop = new Tone.Loop(function(time) {
+	synth.triggerAttackRelease("C1", "8n", time);
+}, "4n");
+//play the loop between 0-2m on the transport
+//loop.start(0).stop('2m');
+
 // The following block of code will run when the play button is clicked
 document.querySelector('#playButton').onclick = function() {
   console.log('The play button has been heckin\' clicked.');
 
   // Play a middle C, which will sound until the stop button is clicked
   //synth.triggerAttack('C4');
-  musicSample.start();
+  //musicSample.start();
+  loop.start();
 };
 
 // The following block of code will run when the stop button is clicked
@@ -90,7 +99,16 @@ document.querySelector('#stopButton').onclick = function() {
 
   // Stop the note from sounding
   //synth.triggerRelease();
-  musicSample.stop();
+  //musicSample.stop();
+  loop.stop();
+};
+
+document.querySelector('#transportButton').onclick = function() {
+  console.log('The transport button has been heckin\' clicked.');
+  // Start the audio context
+  Tone.context.resume();
+  // Start or stop transport:
+  Tone.Transport.toggle();
 };
 
 </script>
